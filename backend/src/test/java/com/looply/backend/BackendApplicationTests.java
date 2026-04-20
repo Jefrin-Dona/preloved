@@ -2,8 +2,9 @@ package com.looply.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import com.preloved.PrelovedApplication;
 
-@SpringBootTest
+@SpringBootTest(classes = PrelovedApplication.class)
 class BackendApplicationTests {
 
 	@Test

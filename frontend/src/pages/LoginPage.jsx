@@ -13,7 +13,7 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const { data } = await api.post("/auth/login", form);
-      login(data);
+      login({ token: data.token, role: data.role, userId: data.id });
       if (data.role === "BUYER") navigate("/shop");
       else if (data.role === "SELLER") navigate("/seller/dashboard");
       else navigate("/admin");
@@ -38,7 +38,7 @@ export default function LoginPage() {
             placeholder="Password" type="password"
             value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
           />
-          <button className="w-full bg-rose-500 hover:bg-rose-600 text-white py-3 rounded-xl font-semibold transition">
+          <button type="submit" className="w-full bg-rose-500 hover:bg-rose-600 text-white py-3 rounded-xl font-semibold transition">
             Sign In
           </button>
         </form>

@@ -1,24 +1,29 @@
 package com.preloved.service;
-import com.preloved.dto.ProductRequest;
-import com.preloved.entity.*;
-import com.preloved.repository.*;
-import org.springframework.data.domain.*;
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import java.math.BigDecimal;
-import java.util.List;
+
+import com.preloved.dto.ProductRequest;
+import com.preloved.entity.Product;
+import com.preloved.entity.User;
+import com.preloved.repository.ProductRepository;
+import com.preloved.repository.UserRepository;
 
 @Service
 public class ProductService {
     private final ProductRepository productRepo;
     private final UserRepository userRepo;
-    private final S3Service s3Service;
+    private final FileStorageService fileStorageService;
 
-    public ProductService(ProductRepository productRepo, UserRepository userRepo, S3Service s3Service) {
+    public ProductService(ProductRepository productRepo, UserRepository userRepo, FileStorageService fileStorageService) {
         this.productRepo = productRepo;
         this.userRepo = userRepo;
-        this.s3Service = s3Service;
+        this.fileStorageService = fileStorageService;
     }
 
     public Page<Product> search(String keyword, String category, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
@@ -39,7 +44,7 @@ public class ProductService {
         User seller = userRepo.findByEmail(sellerEmail).orElseThrow();
         if (seller.isBanned()) throw new RuntimeException("Your account is suspended.");
         if (!seller.isIdVerified()) throw new RuntimeException("ID must be verified before listing.");
-        List<String> imageUrls = images.stream().map(s3Service::uploadFile).toList();
+        List<String> imageUrls = images.stream().map(fileStorageService::uploadFile).toList();
         return productRepo.save(Product.builder().title(req.title()).description(req.description())
                 .price(req.price()).category(req.category()).condition(req.condition())
                 .imageUrls(imageUrls).seller(seller).status(Product.ProductStatus.AVAILABLE).build());
@@ -59,7 +64,7 @@ public class ProductService {
         product.setTitle(req.title()); product.setDescription(req.description());
         product.setPrice(req.price()); product.setCategory(req.category()); product.setCondition(req.condition());
         if (images != null && !images.isEmpty())
-            product.setImageUrls(images.stream().map(s3Service::uploadFile).toList());
+            product.setImageUrls(images.stream().map(fileStorageService::uploadFile).toList());
         return productRepo.save(product);
     }
 

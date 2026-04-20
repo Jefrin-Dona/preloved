@@ -2,23 +2,44 @@ package com.preloved.controller;
 
 import com.preloved.dto.AuthRequest;
 import com.preloved.dto.AuthResponse;
+import com.preloved.dto.RegisterRequest;
+import com.preloved.entity.User;
+import com.preloved.service.UserService;
+import com.preloved.security.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.core.AuthenticationException;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    private final UserService userService;
+    private final JwtUtil jwtUtil;
+
+    public AuthController(UserService userService, JwtUtil jwtUtil) {
+        this.userService = userService;
+        this.jwtUtil = jwtUtil;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        try {
+            User user = userService.register(request);
+            String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+            return ResponseEntity.ok(new AuthResponse(token, user.getEmail(), user.getId(), user.getRole().name()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
         try {
-            String token = "dummy-token";
-            return ResponseEntity.ok(
-                new AuthResponse(token, request.getEmail(), 1L)
-            );
-        } catch (AuthenticationException e) {
-            return ResponseEntity.badRequest().body("Invalid credentials");
+            User user = userService.login(request.getEmail(), request.getPassword());
+            String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+            return ResponseEntity.ok(new AuthResponse(token, user.getEmail(), user.getId(), user.getRole().name()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }
