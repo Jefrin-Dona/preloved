@@ -13,10 +13,8 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const { data } = await api.post("/auth/login", form);
-      login({ token: data.token, role: data.role, userId: data.id });
-      if (data.role === "BUYER") navigate("/shop");
-      else if (data.role === "SELLER") navigate("/seller/dashboard");
-      else navigate("/admin");
+      login({ token: data.token, email: form.email });
+      navigate("/shop");
     } catch {
       toast.error("Login failed. Check credentials.");
     }
@@ -25,18 +23,20 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 to-amber-50">
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center text-rose-600 mb-2">ReWear</h1>
-        <p className="text-center text-gray-400 mb-8">Give your goods a second life</p>
+        <h1 className="text-3xl font-bold text-center text-rose-600 mb-2">Looply</h1>
+        <p className="text-center text-gray-400 mb-8">Preloved goods marketplace</p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-300"
             placeholder="Email" type="email"
             value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
+            required
           />
           <input
             className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-300"
             placeholder="Password" type="password"
             value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
+            required
           />
           <button type="submit" className="w-full bg-rose-500 hover:bg-rose-600 text-white py-3 rounded-xl font-semibold transition">
             Sign In

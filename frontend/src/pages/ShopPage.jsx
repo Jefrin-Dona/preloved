@@ -1,71 +1,71 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import ProductCard from "../components/ProductCard";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { LogOut } from "lucide-react";
+import { useAuthStore } from "../store/authStore";
+import toast from "react-hot-toast";
 
 export default function ShopPage() {
+  const navigate = useNavigate();
+  const { logout } = useAuthStore();
   const [products, setProducts] = useState([]);
-  const [keyword, setKeyword] = useState("");
-  const [category, setCategory] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const categories = ["All", "Clothing", "Electronics", "Books", "Furniture", "Toys", "Sports"];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { data } = await api.get("/products");
+        setProducts(data);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        toast.error("Failed to load products");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
-  const fetchProducts = async () => {
-    setLoading(true);
-    try {
-      const params = {};
-      if (keyword) params.keyword = keyword;
-      if (category && category !== "All") params.category = category;
-      const { data } = await api.get("/products/search", { params });
-      setProducts(data.content || []);
-    } catch { /* handle */ }
-    setLoading(false);
+  const handleLogout = () => {
+    logout();
+    toast.success("Logged out!");
+    navigate("/login");
   };
-
-  useEffect(() => { fetchProducts(); }, [keyword, category]);
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
-          <h1 className="text-2xl font-bold text-rose-600">ReWear</h1>
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-3 text-gray-400" size={18} />
-            <input
-              className="w-full border rounded-full pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-rose-300"
-              placeholder="Search preloved goods..."
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-            />
-          </div>
-        </div>
-
-        {/* Category pills */}
-        <div className="max-w-7xl mx-auto px-4 pb-3 flex gap-2 overflow-x-auto">
-          {categories.map((c) => (
-            <button key={c}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition ${
-                category === c || (c === "All" && !category)
-                  ? "bg-rose-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-rose-50"
-              }`}
-              onClick={() => setCategory(c === "All" ? "" : c)}>
-              {c}
-            </button>
-          ))}
+      <div className="bg-white shadow-sm sticky top-0 z-20">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-rose-600">Looply Store</h1>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition">
+            <LogOut size={20} />
+            Logout
+          </button>
         </div>
       </div>
 
-      {/* Products grid */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-8">Available Products</h2>
+
         {loading ? (
           <div className="flex justify-center py-16">
             <div className="w-10 h-10 border-4 border-rose-400 border-t-transparent rounded-full animate-spin" />
           </div>
+        ) : products.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="text-6xl mb-4">📦</div>
+            <h3 className="text-xl font-semibold text-gray-800">No products available</h3>
+          </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {products.map((p) => <ProductCard key={p.id} product={p} />)}
+            {products.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
           </div>
         )}
       </div>

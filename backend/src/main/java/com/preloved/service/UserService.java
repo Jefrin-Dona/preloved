@@ -5,7 +5,6 @@ import com.preloved.entity.User;
 import com.preloved.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
 public class UserService {
@@ -24,7 +23,6 @@ public class UserService {
                 .name(req.name())
                 .email(req.email())
                 .password(passwordEncoder.encode(req.password()))
-                .role(User.Role.valueOf(req.role().toUpperCase()))
                 .build();
         return userRepo.save(user);
     }
@@ -40,21 +38,5 @@ public class UserService {
     public User findByEmail(String email) {
         return userRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-    }
-
-    public List<User> getPendingVerification() {
-        return userRepo.findByRoleAndIdVerifiedFalse(User.Role.SELLER);
-    }
-
-    public void verifySeller(Long id) {
-        User seller = userRepo.findById(id).orElseThrow();
-        seller.setIdVerified(true);
-        userRepo.save(seller);
-    }
-
-    public void banSeller(Long id) {
-        User seller = userRepo.findById(id).orElseThrow();
-        seller.setBanned(true);
-        userRepo.save(seller);
     }
 }
