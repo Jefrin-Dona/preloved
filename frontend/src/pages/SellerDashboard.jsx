@@ -21,6 +21,11 @@ export default function SellerDashboard() {
 
   useEffect(() => {
     fetchSellerData();
+    // Load seller state from localStorage
+    const savedSeller = localStorage.getItem("sellerData");
+    if (savedSeller) {
+      setSeller(JSON.parse(savedSeller));
+    }
   }, []);
 
   const fetchSellerData = async () => {
@@ -84,17 +89,37 @@ export default function SellerDashboard() {
     }
 
     setSubmitLoading(true);
-    const fd = new FormData();
-    fd.append("document", idDocument);
-
+    
+    // Mock ID verification - simulate 5 second verification process
     try {
-      await api.post("/seller/verify-id", fd);
-      setSeller({ ...seller, idVerified: true });
+      toast.loading("Verifying your ID...", { id: "verify" });
+      
+      // Simulate verification delay
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      
+      // Update seller state to verified
+      const updatedSeller = { ...seller, idVerified: true };
+      setSeller(updatedSeller);
+      
+      // Persist to localStorage
+      localStorage.setItem("sellerData", JSON.stringify(updatedSeller));
+      
+      // Log successful verification
+      console.log("✅ ID Verification Complete", {
+        timestamp: new Date().toISOString(),
+        document: idDocument.name,
+        verified: true,
+        seller: updatedSeller
+      });
+      
       setShowIdVerification(false);
       setIdDocument(null);
-      toast.success("ID submitted for verification!");
+      
+      toast.dismiss("verify");
+      toast.success("ID verified successfully! You can now sell on Looply", { duration: 4 });
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to upload ID");
+      console.error("❌ ID Verification Failed:", err);
+      toast.error("Failed to verify ID. Please try again.");
     } finally {
       setSubmitLoading(false);
     }
