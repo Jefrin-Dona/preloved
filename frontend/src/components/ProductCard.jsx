@@ -1,23 +1,24 @@
 export default function ProductCard({ product }) {
-  const imageUrl = product.imageUrl 
+  const getFallback = () => {
+    return `https://source.unsplash.com/400x400/?${product.category || "product"}`;
+  };
+
+  const imageUrl = product.imageUrl
     ? (product.imageUrl.startsWith('http') 
         ? product.imageUrl 
         : `http://localhost:8080${product.imageUrl}`)
-    : null;
-  
-  const placeholderSvg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23e5e5e5' width='200' height='200'/%3E%3C/svg%3E`;
-  
+    : getFallback();
+
   const handleImageError = (e) => {
-    console.error("❌ Image failed to load:", imageUrl);
-    e.target.src = placeholderSvg;
+    e.target.src = getFallback();
   };
-  
+
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition group">
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-gray-100">
         <img
-          src={imageUrl || placeholderSvg}
+          src={imageUrl}
           alt={product.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           onError={handleImageError}
