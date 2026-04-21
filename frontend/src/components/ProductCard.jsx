@@ -1,4 +1,5 @@
 export default function ProductCard({ product }) {
+  console.log("🖼️ ProductCard received:", { title: product.title, imageUrl: product.imageUrl, imageUrls: product.imageUrls, allFields: Object.keys(product) });
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition group">
       {/* Image */}

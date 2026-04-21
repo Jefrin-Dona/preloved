@@ -14,6 +14,7 @@ public class Product {
     private String description;
     private BigDecimal price;
     private String category;
+    @Column(name = "`condition`")
     private String condition;
     @ElementCollection
     @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
@@ -43,6 +44,9 @@ public class Product {
     public void setCondition(String condition) { this.condition = condition; }
     public List<String> getImageUrls() { return imageUrls; }
     public void setImageUrls(List<String> imageUrls) { this.imageUrls = imageUrls; }
+    public String getImageUrl() { 
+        return (imageUrls != null && !imageUrls.isEmpty()) ? imageUrls.get(0) : null; 
+    }
     public User getSeller() { return seller; }
     public void setSeller(User seller) { this.seller = seller; }
     public ProductStatus getStatus() { return status; }

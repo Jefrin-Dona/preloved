@@ -21,16 +21,28 @@ export default function SellerDashboard() {
 
   useEffect(() => {
     fetchSellerData();
-    // Load seller state from localStorage
-    const savedSeller = localStorage.getItem("sellerData");
-    if (savedSeller) {
-      setSeller(JSON.parse(savedSeller));
-    }
+    fetchVerificationStatus();
   }, []);
+
+  const fetchVerificationStatus = async () => {
+    try {
+      const response = await api.get("/seller/verification-status");
+      setSeller({
+        idVerified: response.data.idVerified,
+        email: response.data.email,
+      });
+      console.log("✅ Verification Status Loaded:", response.data);
+    } catch (err) {
+      console.error("❌ Failed to fetch verification status:", err);
+      // If not verified, assume false
+      setSeller({ idVerified: false });
+    }
+  };
 
   const fetchSellerData = async () => {
     try {
       const productsData = await api.get("/products/seller/mine");
+      console.log("📦 API Response - Products:", productsData.data);
       setProducts(productsData.data);
       // Fetch seller info from profile endpoint if available
     } catch (err) {
@@ -90,12 +102,11 @@ export default function SellerDashboard() {
 
     setSubmitLoading(true);
     
-    // Mock ID verification - simulate 5 second verification process
     try {
       toast.loading("Verifying your ID...", { id: "verify" });
       
-      // Simulate verification delay
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      // Call mock verification endpoint
+      const response = await api.post("/seller/verify-id-mock");
       
       // Update seller state to verified
       const updatedSeller = { ...seller, idVerified: true };
@@ -109,7 +120,8 @@ export default function SellerDashboard() {
         timestamp: new Date().toISOString(),
         document: idDocument.name,
         verified: true,
-        seller: updatedSeller
+        seller: updatedSeller,
+        serverResponse: response.data
       });
       
       setShowIdVerification(false);
@@ -119,7 +131,7 @@ export default function SellerDashboard() {
       toast.success("ID verified successfully! You can now sell on Looply", { duration: 4 });
     } catch (err) {
       console.error("❌ ID Verification Failed:", err);
-      toast.error("Failed to verify ID. Please try again.");
+      toast.error(err.response?.data?.message || "Failed to verify ID. Please try again.");
     } finally {
       setSubmitLoading(false);
     }

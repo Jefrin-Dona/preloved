@@ -42,6 +42,11 @@ public class ProductController {
     @PostMapping("/seller/add")
     public ResponseEntity<Product> addProduct(@RequestPart("data") ProductRequest req,
             @RequestPart("images") List<MultipartFile> images, @AuthenticationPrincipal UserDetails ud) {
+        if (ud == null) {
+            System.out.println("❌ ERROR: UserDetails is NULL - authentication failed!");
+            throw new RuntimeException("User not authenticated");
+        }
+        System.out.println("✅ addProduct - User: " + ud.getUsername() + " | Authorities: " + ud.getAuthorities());
         return ResponseEntity.ok(productService.addProduct(req, images, ud.getUsername()));
     }
 
