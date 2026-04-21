@@ -43,6 +43,9 @@ export default function SellerDashboard() {
     try {
       const productsData = await api.get("/products/seller/mine");
       console.log("📦 API Response - Products:", productsData.data);
+      if (productsData.data.length > 0) {
+        console.log("🖼️ First Product Full Details:", JSON.stringify(productsData.data[0], null, 2));
+      }
       setProducts(productsData.data);
       // Fetch seller info from profile endpoint if available
     } catch (err) {

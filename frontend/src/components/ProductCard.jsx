@@ -1,13 +1,27 @@
 export default function ProductCard({ product }) {
-  console.log("🖼️ ProductCard received:", { title: product.title, imageUrl: product.imageUrl, imageUrls: product.imageUrls, allFields: Object.keys(product) });
+  const imageUrl = product.imageUrl 
+    ? `http://localhost:8080${product.imageUrl}` 
+    : "https://via.placeholder.com/200";
+  
+  const handleImageError = (e) => {
+    console.error("❌ Image failed to load:", imageUrl, e);
+    e.target.src = "https://via.placeholder.com/200";
+  };
+  
+  const handleImageLoad = () => {
+    console.log("✅ Image loaded successfully:", imageUrl);
+  };
+  
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition group">
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-gray-100">
         <img
-          src={product.imageUrl || "https://via.placeholder.com/200"}
+          src={imageUrl}
           alt={product.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          onError={handleImageError}
+          onLoad={handleImageLoad}
         />
       </div>
 
