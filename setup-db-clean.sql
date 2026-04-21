@@ -1,18 +1,21 @@
+-- Drop existing database if it exists
+DROP DATABASE IF EXISTS preloved_db;
+
 -- Create database
-CREATE DATABASE IF NOT EXISTS preloved_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE preloved_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Use the database
 USE preloved_db;
 
 -- Create users table
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   email VARCHAR(255) UNIQUE NOT NULL,
   password VARCHAR(255) NOT NULL,
   name VARCHAR(255),
   phone VARCHAR(20),
   role VARCHAR(20) DEFAULT 'BUYER',
-  id_document_url VARCHAR(500),
+  id_document_url VARCHAR(500) NULL,
   id_verified BOOLEAN DEFAULT FALSE,
   banned BOOLEAN DEFAULT FALSE,
   false_review_count INT DEFAULT 0,
@@ -20,7 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- Create products table
-CREATE TABLE IF NOT EXISTS products (
+CREATE TABLE products (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   title VARCHAR(255) NOT NULL,
   description VARCHAR(2000),
@@ -34,7 +37,7 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 -- Create product_images table
-CREATE TABLE IF NOT EXISTS product_images (
+CREATE TABLE product_images (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   product_id BIGINT NOT NULL,
   image_url VARCHAR(500),
@@ -42,7 +45,7 @@ CREATE TABLE IF NOT EXISTS product_images (
 );
 
 -- Create orders table
-CREATE TABLE IF NOT EXISTS orders (
+CREATE TABLE orders (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   buyer_id BIGINT NOT NULL,
   seller_id BIGINT NOT NULL,
@@ -55,7 +58,7 @@ CREATE TABLE IF NOT EXISTS orders (
 );
 
 -- Create cart_items table
-CREATE TABLE IF NOT EXISTS cart_items (
+CREATE TABLE cart_items (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   user_id BIGINT NOT NULL,
   product_id BIGINT NOT NULL,
@@ -66,7 +69,7 @@ CREATE TABLE IF NOT EXISTS cart_items (
 );
 
 -- Create favourites table
-CREATE TABLE IF NOT EXISTS favourites (
+CREATE TABLE favourites (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   user_id BIGINT NOT NULL,
   product_id BIGINT NOT NULL,
@@ -76,7 +79,7 @@ CREATE TABLE IF NOT EXISTS favourites (
 );
 
 -- Create reviews table
-CREATE TABLE IF NOT EXISTS reviews (
+CREATE TABLE reviews (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   product_id BIGINT NOT NULL,
   buyer_id BIGINT NOT NULL,
@@ -87,13 +90,13 @@ CREATE TABLE IF NOT EXISTS reviews (
   FOREIGN KEY (buyer_id) REFERENCES users(id)
 );
 
--- Insert seller user (password: seller123 hashed with bcrypt)
-INSERT INTO users (email, password, name, phone, role, id_verified) VALUES 
-('seller@looply.com', '$2a$10$slYQmyNdGzin7olVvHGFLOYvX1j/n3R0c1qRpVLn3VzFxLqNOJvDa', 'Sarah Vintage', '+1234567890', 'SELLER', TRUE),
-('admin@looply.com', '$2a$10$slYQmyNdGzin7olVvHGFLOYvX1j/n3R0c1qRpVLn3VzFxLqNOJvDa', 'Admin User', '+1234567890', 'ADMIN', TRUE);
+-- Insert seller user (password: seller123)
+INSERT INTO users (email, password, name, phone, role, id_verified, banned, false_review_count) VALUES 
+('seller@looply.com', '$2a$10$slYQmyNdGzin7olVvHGFLOYvX1j/n3R0c1qRpVLn3VzFxLqNOJvDa', 'Sarah Vintage', '+1234567890', 'SELLER', TRUE, FALSE, 0),
+('admin@looply.com', '$2a$10$slYQmyNdGzin7olVvHGFLOYvX1j/n3R0c1qRpVLn3VzFxLqNOJvDa', 'Admin User', '+0987654321', 'ADMIN', TRUE, FALSE, 0);
 
--- Insert mock products (assign to seller with id=1)
-INSERT INTO products (title, description, price, category, condition, seller_id, status) VALUES
+-- Insert mock products
+INSERT INTO products (title, description, price, category, `condition`, seller_id, status) VALUES
 ('Vintage Levis 501 Jeans', 'Classic 90s Levis 501 jeans in perfect condition. Dark blue denim with minimal fading.', 45.99, 'Clothing', 'Excellent', 1, 'AVAILABLE'),
 ('Leather Crossbody Bag', 'Brown genuine leather crossbody bag with gold hardware. Minor scuff marks but very functional.', 55.00, 'Accessories', 'Good', 1, 'AVAILABLE'),
 ('Nike Air Force 1 White', 'Iconic white leather sneakers. Gently worn, clean sole, very comfortable.', 65.50, 'Shoes', 'Good', 1, 'AVAILABLE'),
@@ -115,7 +118,7 @@ INSERT INTO products (title, description, price, category, condition, seller_id,
 ('Gold Chain Necklace', 'Delicate gold chain necklace. 18k gold plated, elegant and timeless.', 29.99, 'Accessories', 'Excellent', 1, 'AVAILABLE'),
 ('Chelsea Boots Burgundy', 'Burgundy suede Chelsea boots. Comfortable fit, great for dressing up or down.', 62.00, 'Shoes', 'Good', 1, 'AVAILABLE'),
 ('Oversized Blazer Black', 'Classic black oversized blazer. Perfect for styling, no wrinkles or stains.', 48.00, 'Clothing', 'Excellent', 1, 'AVAILABLE'),
-('Vintage Rolex Inspired Watch', 'Luxury-style watch with metal band. Keeps accurate time, looks expensive.', 55.00, 'Accessories', 'Good', 1, 'AVAILABLE'),
+('Luxury Watch Silver', 'Luxury-style watch with metal band. Keeps accurate time, looks expensive.', 55.00, 'Accessories', 'Good', 1, 'AVAILABLE'),
 ('Puma Running Shoes', 'Lightweight running shoes in black and gray. Only used for gym, barely worn.', 52.00, 'Shoes', 'Excellent', 1, 'AVAILABLE'),
 ('Cotton Summer Dress', 'Light blue cotton dress with floral print. Perfect for warm weather, comfortable fit.', 28.00, 'Clothing', 'Excellent', 1, 'AVAILABLE'),
 ('Silver Bracelet Set', 'Set of 3 silver bracelets with various designs. Minimal tarnish, very elegant.', 24.00, 'Accessories', 'Good', 1, 'AVAILABLE'),
@@ -123,7 +126,7 @@ INSERT INTO products (title, description, price, category, condition, seller_id,
 ('Graphic Hoodie Gray', 'Comfortable gray hoodie with faded graphic print. Perfect for casual wear, still soft.', 26.00, 'Clothing', 'Good', 1, 'AVAILABLE'),
 ('Vintage Camera Polaroid', 'Functional instant camera. Takes great instant photos, retro aesthetic.', 45.00, 'Electronics', 'Fair', 1, 'AVAILABLE');
 
--- Insert product images (sample placeholder images for each product)
+-- Insert product images
 INSERT INTO product_images (product_id, image_url) VALUES
 (1, 'https://via.placeholder.com/400?text=Vintage+Levis'),
 (2, 'https://via.placeholder.com/400?text=Leather+Bag'),
@@ -146,7 +149,7 @@ INSERT INTO product_images (product_id, image_url) VALUES
 (19, 'https://via.placeholder.com/400?text=Gold+Necklace'),
 (20, 'https://via.placeholder.com/400?text=Chelsea+Boots'),
 (21, 'https://via.placeholder.com/400?text=Black+Blazer'),
-(22, 'https://via.placeholder.com/400?text=Rolex+Watch'),
+(22, 'https://via.placeholder.com/400?text=Silver+Watch'),
 (23, 'https://via.placeholder.com/400?text=Puma+Shoes'),
 (24, 'https://via.placeholder.com/400?text=Summer+Dress'),
 (25, 'https://via.placeholder.com/400?text=Silver+Bracelet'),
@@ -154,10 +157,14 @@ INSERT INTO product_images (product_id, image_url) VALUES
 (27, 'https://via.placeholder.com/400?text=Gray+Hoodie'),
 (28, 'https://via.placeholder.com/400?text=Polaroid+Camera');
 
--- Show database info
-SELECT '=== DATABASE SETUP COMPLETE ===' AS Status;
+-- Display summary
+SELECT '========== DATABASE SETUP COMPLETE ==========' AS Status;
 SELECT COUNT(*) AS Total_Users FROM users;
 SELECT COUNT(*) AS Total_Products FROM products;
 SELECT COUNT(*) AS Total_Images FROM product_images;
-SELECT * FROM users;
-SELECT * FROM products;
+
+SELECT '========== USERS ==========' AS Section;
+SELECT id, email, name, role FROM users;
+
+SELECT '========== PRODUCTS SAMPLE ==========' AS Section;
+SELECT id, title, price, category, `condition`, status FROM products LIMIT 10;

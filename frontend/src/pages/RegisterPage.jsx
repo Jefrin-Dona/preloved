@@ -4,13 +4,13 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 export default function RegisterPage() {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", role: "BUYER" });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.password) {
+    if (!form.name || !form.email || !form.password || !form.role) {
       toast.error("Please fill in all fields");
       return;
     }
@@ -56,6 +56,15 @@ export default function RegisterPage() {
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             required
           />
+          <select
+            className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-rose-300 focus:outline-none"
+            value={form.role}
+            onChange={(e) => setForm({ ...form, role: e.target.value })}
+            required
+          >
+            <option value="BUYER">Buyer</option>
+            <option value="SELLER">Seller</option>
+          </select>
 
           <button
             type="submit"

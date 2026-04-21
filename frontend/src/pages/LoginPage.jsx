@@ -13,10 +13,11 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const { data } = await api.post("/auth/login", form);
-      login({ token: data.token, email: form.email });
-      navigate("/shop");
-    } catch {
-      toast.error("Login failed. Check credentials.");
+      login({ token: data.token, email: data.email, role: data.role, id: data.id });
+      toast.success("Logged in!");
+      navigate("/");
+    } catch (err) {
+      toast.error(err.response?.data || "Login failed. Check credentials.");
     }
   };
 

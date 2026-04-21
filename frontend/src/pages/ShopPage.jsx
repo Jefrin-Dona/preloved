@@ -15,8 +15,8 @@ export default function ShopPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await api.get("/products");
-        setProducts(data);
+        const { data } = await api.get("/products/search");
+        setProducts(data.content || []);
       } catch (err) {
         console.error("Error fetching products:", err);
         toast.error("Failed to load products");

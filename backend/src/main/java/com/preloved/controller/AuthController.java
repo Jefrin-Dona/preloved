@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
 
     private final UserService userService;
@@ -26,8 +25,8 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         try {
             User user = userService.register(request);
-            String token = jwtUtil.generateToken(user.getEmail());
-            return ResponseEntity.ok(new AuthResponse(token, user.getEmail(), user.getId()));
+            String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+            return ResponseEntity.ok(new AuthResponse(token, user.getEmail(), user.getId(), user.getRole().name()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -37,8 +36,8 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
         try {
             User user = userService.login(request.getEmail(), request.getPassword());
-            String token = jwtUtil.generateToken(user.getEmail());
-            return ResponseEntity.ok(new AuthResponse(token, user.getEmail(), user.getId()));
+            String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+            return ResponseEntity.ok(new AuthResponse(token, user.getEmail(), user.getId(), user.getRole().name()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

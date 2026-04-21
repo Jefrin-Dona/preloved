@@ -1,6 +1,10 @@
 package com.preloved.repository;
 import com.preloved.entity.Product;
+import com.preloved.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-public interface ProductRepository extends JpaRepository<Product, Long> {
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import java.util.List;
+public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
+    List<Product> findBySeller(User seller);
+    List<Product> findByStatus(Product.ProductStatus status);
 }
