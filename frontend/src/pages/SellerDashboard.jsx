@@ -400,7 +400,7 @@ export default function SellerDashboard() {
                 <div key={product.id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
                   <div className="relative">
                     <img
-                      src={product.imageUrls?.[0] || "/placeholder.jpg"}
+                      src={product.imageUrl ? `http://localhost:8080${product.imageUrl}` : "https://via.placeholder.com/200"}
                       alt={product.title}
                       className="w-full aspect-square object-cover"
                     />
