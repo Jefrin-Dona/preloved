@@ -1,15 +1,15 @@
 export default function ProductCard({ product }) {
   const imageUrl = product.imageUrl 
-    ? `http://localhost:8080${product.imageUrl}` 
-    : "https://via.placeholder.com/200";
+    ? (product.imageUrl.startsWith('http') 
+        ? product.imageUrl 
+        : `http://localhost:8080${product.imageUrl}`)
+    : null;
+  
+  const placeholderSvg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23e5e5e5' width='200' height='200'/%3E%3C/svg%3E`;
   
   const handleImageError = (e) => {
-    console.error("❌ Image failed to load:", imageUrl, e);
-    e.target.src = "https://via.placeholder.com/200";
-  };
-  
-  const handleImageLoad = () => {
-    console.log("✅ Image loaded successfully:", imageUrl);
+    console.error("❌ Image failed to load:", imageUrl);
+    e.target.src = placeholderSvg;
   };
   
   return (
@@ -17,11 +17,10 @@ export default function ProductCard({ product }) {
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-gray-100">
         <img
-          src={imageUrl}
+          src={imageUrl || placeholderSvg}
           alt={product.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           onError={handleImageError}
-          onLoad={handleImageLoad}
         />
       </div>
 

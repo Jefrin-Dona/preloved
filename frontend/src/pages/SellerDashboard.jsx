@@ -400,9 +400,16 @@ export default function SellerDashboard() {
                 <div key={product.id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
                   <div className="relative">
                     <img
-                      src={product.imageUrl ? `http://localhost:8080${product.imageUrl}` : "https://via.placeholder.com/200"}
+                      src={product.imageUrl 
+                        ? (product.imageUrl.startsWith('http') 
+                            ? product.imageUrl 
+                            : `http://localhost:8080${product.imageUrl}`)
+                        : `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23e5e5e5' width='200' height='200'/%3E%3C/svg%3E`}
                       alt={product.title}
                       className="w-full aspect-square object-cover"
+                      onError={(e) => {
+                        e.target.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23e5e5e5' width='200' height='200'/%3E%3C/svg%3E`;
+                      }}
                     />
                     <span className={`absolute top-2 left-2 px-3 py-1 rounded-full text-xs font-semibold ${
                       product.status === "AVAILABLE" ? "bg-green-100 text-green-700" :
